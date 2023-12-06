@@ -6,20 +6,20 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.PrintWriter;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 
 public class TableGUI extends JFrame {
 
-    private JTable table;
     private final PrintWriter pw;
+    private final String tableName;
+    private JTable table;
     private DefaultTableModel tableModel;
 
-    public TableGUI(PrintWriter pw) {
+    public TableGUI(PrintWriter pw, String tableName) {
         this.pw = pw;
+        this.tableName = tableName;
     }
 
     public void setTable(SerializableResultSet rs) throws SQLException {
@@ -58,7 +58,7 @@ public class TableGUI extends JFrame {
                 String columnName = table.getColumnName(e.getColumn());
                 Object id = table.getValueAt(e.getFirstRow(), 0);
                 if (id != null) {
-                    String sql = "UPDATE user SET " + columnName + " = '" + changedData + "' WHERE (id = " + id + ")";
+                    String sql = "UPDATE " + tableName + " SET " + columnName + " = '" + changedData + "' WHERE (id = " + id + ")";
 
                     System.out.println(sql);
                     pw.println(sql);
@@ -89,7 +89,7 @@ public class TableGUI extends JFrame {
             // 삭제 버튼 액션 처리
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
-                String sql = "delete from user where id = " + table.getValueAt(selectedRow, 0);
+                String sql = "delete from " + tableName + " where id = " + table.getValueAt(selectedRow, 0);
                 tableModel.removeRow(selectedRow);
                 System.out.println(sql);
                 pw.println(sql);
@@ -112,12 +112,12 @@ public class TableGUI extends JFrame {
             object[0] = tableModel.getRowCount() + 1;
             tableModel.addRow(object);
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("insert into user values (").append(tableModel.getRowCount() + 1).append(",");
+            stringBuilder.append("insert into ").append(tableName).append(" values (").append(tableModel.getRowCount() + 1).append(", ");
 
             for (int i = 1; i < table.getColumnCount(); i++) {
-                stringBuilder.append("''");
+                stringBuilder.append("Null");
                 if (i != table.getColumnCount() - 1) {
-                    stringBuilder.append(",");
+                    stringBuilder.append(", ");
                 }
             }
             stringBuilder.append(")");
