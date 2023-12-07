@@ -15,6 +15,11 @@ public class TableGUI extends JFrame {
     private final PrintWriter pw;
     private final String tableName;
     private JTable table;
+
+    public DefaultTableModel getTableModel() {
+        return tableModel;
+    }
+
     private DefaultTableModel tableModel;
 
     public TableGUI(PrintWriter pw, String tableName) {
@@ -89,7 +94,7 @@ public class TableGUI extends JFrame {
             // 삭제 버튼 액션 처리
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
-                String sql = "delete from " + tableName + " where id = " + table.getValueAt(selectedRow, 0);
+                String sql = "DELETE from " + tableName + " where id = " + table.getValueAt(selectedRow, 0);
                 tableModel.removeRow(selectedRow);
                 System.out.println(sql);
                 pw.println(sql);
@@ -112,7 +117,7 @@ public class TableGUI extends JFrame {
             object[0] = tableModel.getRowCount() + 1;
             tableModel.addRow(object);
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("insert into ").append(tableName).append(" values (").append(tableModel.getRowCount() + 1).append(", ");
+            stringBuilder.append("INSERT into ").append(tableName).append(" values (").append(tableModel.getRowCount() + 1).append(", ");
 
             for (int i = 1; i < table.getColumnCount(); i++) {
                 stringBuilder.append("Null");
