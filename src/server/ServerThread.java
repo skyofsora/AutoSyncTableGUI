@@ -3,16 +3,14 @@ package server;
 import data.SerializableResultSet;
 import sql.SQLConnect;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 public class ServerThread implements Runnable {
     Socket socket;
+    PrintWriter pw;
     BufferedReader br;
     ObjectOutputStream oos;
     Connection conn;
@@ -22,7 +20,8 @@ public class ServerThread implements Runnable {
         socket = s;
         try {
             br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            oos = new ObjectOutputStream(s.getOutputStream());
+            oos = new ObjectOutputStream(socket.getOutputStream());
+            pw = new PrintWriter(socket.getOutputStream(), true);
             conn = SQLConnect.getInstance().getConnection("world", "root", "1234");
 
         } catch (Exception e) {
@@ -48,7 +47,12 @@ public class ServerThread implements Runnable {
             }
             System.out.println(sql);
             try {
-                if (!sql.isEmpty()) System.out.println(conn.prepareStatement(sql).execute());
+                if (!sql.isEmpty()) {
+                    int count = conn.prepareStatement(sql).executeUpdate();
+                    String send = count + "개 행 작업 완료";
+                    System.out.println(send);
+                    pw.println(send);
+                }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
