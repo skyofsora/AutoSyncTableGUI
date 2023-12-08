@@ -7,12 +7,11 @@ import java.io.*;
 import java.net.Socket;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
 public class ServerThread implements Runnable {
+    final List<User> list;
     Socket socket;
     PrintWriter pw;
     BufferedReader br;
@@ -20,8 +19,6 @@ public class ServerThread implements Runnable {
     Connection conn;
     String sql;
     User user;
-
-    final List<User> list;
 
     public ServerThread(Socket s, List<User> list) {
         this.list = list;
@@ -31,23 +28,36 @@ public class ServerThread implements Runnable {
             oos = new ObjectOutputStream(socket.getOutputStream());
             pw = new PrintWriter(socket.getOutputStream(), true);
             conn = SQLConnect.getInstance().getConnection("world", "root", "1234");
-            user = new User(pw, br.readLine());
-            synchronized (this.list) {
-                this.list.add(user);
-            }
         } catch (Exception e) {
             e.fillInStackTrace();
         }
     }
 
     public void run() {
-        try {
-            String read = br.readLine();
-            SerializableResultSet rs = new SerializableResultSet(conn.prepareStatement(read).executeQuery());
-            oos.writeObject(rs);
-            oos.flush();
-        } catch (IOException | SQLException e) {
-            throw new RuntimeException(e);
+        SerializableResultSet rs;
+        String tableName = null;
+        while (true) {
+            try {
+                tableName = br.readLine();
+                String read = br.readLine();
+                rs = new SerializableResultSet(conn.prepareStatement(read).executeQuery());
+                System.out.println(tableName + " 테이블 연결됨");
+            } catch (SQLException | IOException e) {
+                System.out.println(socket.getInetAddress() + " 요청 : 테이블이 존재하지 않습니다.");
+                e.fillInStackTrace();
+                rs = null;
+            }
+            try {
+                oos.writeObject(rs);
+                oos.flush();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            if (rs != null) break;
+        }
+        user = new User(pw, tableName);
+        synchronized (this.list) {
+            this.list.add(user);
         }
         while (true) {
             try {

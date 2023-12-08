@@ -64,7 +64,6 @@ public class TableGUI extends JFrame {
                 Object id = table.getValueAt(e.getFirstRow(), 0);
                 if (id != null) {
                     String sql = "UPDATE " + tableName + " SET " + columnName + " = " + changedData + " WHERE (id = " + id + ")";
-
                     System.out.println(sql);
                     pw.println(sql);
                 }

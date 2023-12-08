@@ -26,6 +26,7 @@ public class QueryToTable {
 
     public void updateTable(String query) {
         Object id = (int) query.charAt(query.indexOf("id = ") + 5) - '0';
+        // 정규식을 사용하여 컬럼 이름과 컬럼 값을 추출함
         Pattern pattern = Pattern.compile("\\bset\\s+([a-zA-Z_]+)\\s*=\\s*'([^']+)'");
         Matcher matcher = pattern.matcher(query);
         String columnName = null, columnValue = null;
@@ -38,7 +39,6 @@ public class QueryToTable {
         for (int row = 0; row < tableModel.getRowCount(); row++) {
             if (tableModel.getValueAt(row, 0).equals(id)) {
                 int column = tableModel.findColumn(columnName);
-
                 tableModel.setValueAt(columnValue, row, column);
                 break;
             }

@@ -28,21 +28,30 @@ public class ClientThread extends Thread {
         try {
             Scanner sc = new Scanner(System.in);
             System.out.println("사용하려는 테이블은 id를 제외하고 Null이 허용되어야 합니다.\n컬럼명 id에는 대문자가 포함되지 않아야 합니다. ex) ID, iD, Id 안됨\n첫 번째 컬럼이 항상 id이어야 합니다.");
-            System.out.print("테이블 이름을 입력해주세요 : ");
-            String tableName = sc.next();
-            pw.println(tableName);
-            pw.println("select * from " + tableName);
-            SerializableResultSet rs = (SerializableResultSet) ois.readObject();
+            String tableName;
+            SerializableResultSet rs;
+            while (true) {
+                System.out.print("테이블 이름을 입력해주세요 : ");
+                tableName = sc.next();
+                pw.println(tableName);
+                pw.println("select * from " + tableName);
+                rs = (SerializableResultSet) ois.readObject();
+                if (rs != null) {
+                    break;
+                }
+                System.out.println("테이블이 존재하지 않습니다.");
+            }
+
             TableGUI tableGUI = new TableGUI(pw, tableName);
             tableGUI.setTable(rs);
             queryToTable = new QueryToTable(tableGUI.getTableModel());
             String query;
             while ((query = br.readLine()) != null) {
                 System.out.println(query);
-                queryToTable.checkQuery(query);
+                queryToTable.checkQuery(query); // 테이블을 업데이트, 추가, 삭제함
             }
             tableGUI.dispose();
-        } catch (IOException | ClassNotFoundException | SQLException e) {
+        } catch (IOException | SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

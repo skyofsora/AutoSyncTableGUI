@@ -4,11 +4,13 @@ import gui.TableGUI;
 
 import java.net.Socket;
 
-public class MainClient {
+public class MainClient extends Thread{
     String ip = "localhost";
     int port = 7777;
 
-    public MainClient() {
+    @Override
+    public void run() {
+        super.run();
         try {
             Socket s = new Socket(ip, port);
             ClientThread clientThread = new ClientThread(s);
@@ -19,6 +21,6 @@ public class MainClient {
     }
 
     public static void main(String[] args) {
-        new MainClient();
+        new MainClient().start();
     }
 }
