@@ -39,7 +39,7 @@ public class ClientThread extends Thread {
                 if (rs != null) {
                     break;
                 }
-                System.out.println("테이블이 존재하지 않습니다.");
+                System.out.println("[" + tableName + "] 테이블이 존재하지 않습니다.");
             }
 
             TableGUI tableGUI = new TableGUI(pw, tableName);

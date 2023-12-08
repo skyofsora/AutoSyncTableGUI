@@ -27,7 +27,7 @@ public class QueryToTable {
     public void updateTable(String query) {
         Object id = (int) query.charAt(query.indexOf("id = ") + 5) - '0';
         // 정규식을 사용하여 컬럼 이름과 컬럼 값을 추출함
-        Pattern pattern = Pattern.compile("\\bset\\s+([a-zA-Z_]+)\\s*=\\s*'([^']+)'");
+        Pattern pattern = Pattern.compile("\\bSET\\s+([a-zA-Z_가-힣]+)\\s*=\\s*'([^']+)'");
         Matcher matcher = pattern.matcher(query);
         String columnName = null, columnValue = null;
         // 매칭된 패턴 찾기

@@ -17,7 +17,6 @@ public class ServerThread implements Runnable {
     BufferedReader br;
     ObjectOutputStream oos;
     Connection conn;
-    String sql;
     User user;
 
     public ServerThread(Socket s, List<User> list) {
@@ -43,7 +42,7 @@ public class ServerThread implements Runnable {
                 rs = new SerializableResultSet(conn.prepareStatement(read).executeQuery());
                 System.out.println(tableName + " 테이블 연결됨");
             } catch (SQLException | IOException e) {
-                System.out.println(socket.getInetAddress() + " 요청 : 테이블이 존재하지 않습니다.");
+                System.out.println(socket.getInetAddress() + ": [" + tableName + "] 테이블이 존재하지 않습니다.");
                 e.fillInStackTrace();
                 rs = null;
             }
@@ -59,17 +58,18 @@ public class ServerThread implements Runnable {
         synchronized (this.list) {
             this.list.add(user);
         }
-        while (true) {
-            try {
-                sql = br.readLine();
+        String sql;
+        try {
+            while ((sql = br.readLine()) != null) {  // 메인 서버 구동지점
+                list.removeIf(user -> user.pw.checkError());
                 System.out.println(sql);
                 broadcast(sql);
-                if (!(sql == null || sql.isEmpty())) {
+                if (!sql.isEmpty()) {
                     conn.prepareStatement(sql).execute();
                 }
-            } catch (SQLException | IOException e) {
-                throw new RuntimeException(e);
             }
+        } catch (SQLException | IOException e) {
+            e.fillInStackTrace();
         }
     }
 

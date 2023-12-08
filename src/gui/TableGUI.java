@@ -15,16 +15,15 @@ public class TableGUI extends JFrame {
     private final PrintWriter pw;
     private final String tableName;
     private JTable table;
-
-    public DefaultTableModel getTableModel() {
-        return tableModel;
-    }
-
     private DefaultTableModel tableModel;
 
     public TableGUI(PrintWriter pw, String tableName) {
         this.pw = pw;
         this.tableName = tableName;
+    }
+
+    public DefaultTableModel getTableModel() {
+        return tableModel;
     }
 
     public void setTable(SerializableResultSet rs) throws SQLException {
@@ -113,7 +112,15 @@ public class TableGUI extends JFrame {
 
             // 추가 버튼 액션 처리
             Object[] object = new Object[tableModel.getColumnCount()];
-            object[0] = tableModel.getRowCount() + 1;
+            int count = 1;
+            while (true) {
+                count++;
+                int row = tableModel.getRowCount() + count;
+                if (tableModel.getValueAt(row, 0) != null) {
+                    object[0] = count;
+                    break;
+                }
+            }
             tableModel.addRow(object);
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("INSERT into ").append(tableName).append(" values (").append(tableModel.getRowCount() + 1).append(", ");
