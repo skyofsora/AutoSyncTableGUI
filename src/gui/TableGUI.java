@@ -92,8 +92,9 @@ public class TableGUI extends JFrame {
             // 삭제 버튼 액션 처리
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
+                sendSQL("DELETE from " + tableName + " WHERE (id = " + table.getValueAt(selectedRow, 0) + ")");
                 tableModel.removeRow(selectedRow);
-                sendSQL("DELETE from " + tableName + " where id = " + table.getValueAt(selectedRow, 0));
+
             }
         });
 

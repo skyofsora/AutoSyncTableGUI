@@ -54,8 +54,22 @@ public class QueryToTable {
     }
 
     public void deleteTable(String query) {
-        int id = query.charAt(query.indexOf("id = ") + 5) - '0';
-        tableModel.removeRow(id);
+        Pattern pattern = Pattern.compile("\\s+WHERE\\s+\\(id\\s*=\\s*(\\d+)\\)");
+        // 패턴과 일치하는 부분 찾기
+        Matcher matcher = pattern.matcher(query);
+        int id = -1;
+        if (matcher.find()) {
+            // 매치된 그룹(숫자) 출력
+            id = Integer.parseInt(matcher.group(1));
+        } else {
+            System.out.println("Pattern not found.");
+        }
+        for (int row = 0; row < tableModel.getRowCount(); row++) {
+            if (tableModel.getValueAt(row, 0).equals(id)) {
+                tableModel.removeRow(row);
+                break;
+            }
+        }
     }
 
     public void createTable(String query) {
