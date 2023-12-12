@@ -1,12 +1,14 @@
 package client;
 
-import gui.TableGUI;
-
 import java.net.Socket;
 
-public class MainClient extends Thread{
+public class MainClient extends Thread {
     String ip = "localhost";
     int port = 7777;
+
+    public static void main(String[] args) {
+        new MainClient().start();
+    }
 
     @Override
     public void run() {
@@ -16,11 +18,7 @@ public class MainClient extends Thread{
             ClientThread clientThread = new ClientThread(s);
             clientThread.start();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            System.out.println("[ERROR]" + e.getMessage());
         }
-    }
-
-    public static void main(String[] args) {
-        new MainClient().start();
     }
 }

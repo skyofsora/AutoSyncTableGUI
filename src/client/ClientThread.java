@@ -15,6 +15,7 @@ public class ClientThread extends Thread {
     PrintWriter pw;
     BufferedReader br;
     QueryToTable queryToTable;
+    TableGUI tableGUI;
 
     public ClientThread(Socket s) throws IOException {
         socket = s;
@@ -27,7 +28,6 @@ public class ClientThread extends Thread {
         super.run();
         try {
             Scanner sc = new Scanner(System.in);
-            System.out.println("사용하려는 테이블은 id를 제외하고 Null이 허용되어야 합니다.\n컬럼명 id에는 대문자가 포함되지 않아야 합니다. ex) ID, iD, Id 안됨\n첫 번째 컬럼이 항상 id이어야 합니다.");
             String tableName;
             SerializableResultSet rs;
             while (true) {
@@ -39,20 +39,22 @@ public class ClientThread extends Thread {
                 if (rs != null) {
                     break;
                 }
-                System.out.println("[" + tableName + "] 테이블이 존재하지 않습니다.");
+                System.out.println("'" + tableName + "' 테이블이 존재하지 않습니다.");
             }
 
-            TableGUI tableGUI = new TableGUI(pw, tableName);
+            tableGUI = new TableGUI(pw, tableName);
             tableGUI.setTable(rs);
-            queryToTable = new QueryToTable(tableGUI.getTableModel());
+            queryToTable = new QueryToTable(tableGUI);
             String query;
             while ((query = br.readLine()) != null) {
-                System.out.println(query);
+                tableGUI.isListenerEnabled = false;
                 queryToTable.checkQuery(query); // 테이블을 업데이트, 추가, 삭제함
+                tableGUI.isListenerEnabled = true;
             }
-            tableGUI.dispose();
+            System.exit(0);
         } catch (IOException | SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            System.out.println("\u001B[31m[ERROR] " + e.getMessage()+"\u001B[0m");
+            System.exit(0);
         }
     }
 

@@ -18,10 +18,12 @@ public class ServerThread implements Runnable {
     ObjectOutputStream oos;
     Connection conn;
     User user;
+    String ip;
 
     public ServerThread(Socket s, List<User> list) {
         this.list = list;
         socket = s;
+        ip = "[" + socket.getInetAddress().getHostAddress() + "] ";
         try {
             br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             oos = new ObjectOutputStream(socket.getOutputStream());
@@ -35,14 +37,14 @@ public class ServerThread implements Runnable {
     public void run() {
         SerializableResultSet rs;
         String tableName = null;
-        while (true) {
+        do {
             try {
                 tableName = br.readLine();
                 String read = br.readLine();
                 rs = new SerializableResultSet(conn.prepareStatement(read).executeQuery());
-                System.out.println(tableName + " 테이블 연결됨");
+                System.out.println(ip + "'" + tableName + "' Table Connected");
             } catch (SQLException | IOException e) {
-                System.out.println(socket.getInetAddress() + ": [" + tableName + "] 테이블이 존재하지 않습니다.");
+                System.out.println(ip + "'" + tableName + "' Table Not Found.");
                 e.fillInStackTrace();
                 rs = null;
             }
@@ -52,24 +54,39 @@ public class ServerThread implements Runnable {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            if (rs != null) break;
-        }
+        } while (rs == null);   // rs가 null이면 반복
         user = new User(pw, tableName);
-        synchronized (this.list) {
-            this.list.add(user);
+        synchronized (list) {
+            list.add(user);
         }
         String sql;
         try {
-            while ((sql = br.readLine()) != null) {  // 메인 서버 구동지점
-                list.removeIf(user -> user.pw.checkError());
-                System.out.println(sql);
+            while ((sql = br.readLine()) != null) {
+                conn.prepareStatement(sql).execute();
+                System.out.println(ip + sql);
                 broadcast(sql);
-                if (!sql.isEmpty()) {
-                    conn.prepareStatement(sql).execute();
-                }
             }
-        } catch (SQLException | IOException e) {
+        } catch (IOException | SQLException e) {
             e.fillInStackTrace();
+            pw.println("\u001B[31m[SERVER_ERROR] " + e.getMessage() + "\u001B[0m");
+            System.out.println("\u001B[31m" + ip + e.getMessage() + "\u001B[0m");
+        } finally {
+            pw.close();
+            try {
+                socket.close();
+            } catch (IOException ignored) {
+
+            }
+            try {
+                oos.close();
+            } catch (IOException ignored) {
+
+            }
+            try {
+                br.close();
+            } catch (IOException ignored) {
+
+            }
         }
     }
 

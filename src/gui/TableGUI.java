@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Objects;
 
 public class TableGUI extends JFrame {
-
+    public final String tableName;
     private final PrintWriter pw;
-    private final String tableName;
+    public boolean isListenerEnabled = true;
     private JTable table;
     private DefaultTableModel tableModel;
 
@@ -51,20 +51,20 @@ public class TableGUI extends JFrame {
 
         // 밸류 체크
         tableModel.addTableModelListener(e -> {
-            if (e.getColumn() != -1) {
-                String changedData;
-                Object temp = table.getValueAt(e.getFirstRow(), e.getColumn());
-                if (temp == null || Objects.equals(temp.toString(), "")) {
-                    changedData = "null";
-                } else {
-                    changedData = "'" + temp + "'";
-                }
-                String columnName = table.getColumnName(e.getColumn());
-                Object id = table.getValueAt(e.getFirstRow(), 0);
-                if (id != null) {
-                    String sql = "UPDATE " + tableName + " SET " + columnName + " = " + changedData + " WHERE (id = " + id + ")";
-                    System.out.println(sql);
-                    pw.println(sql);
+            if (isListenerEnabled) {
+                if (e.getColumn() != -1) {
+                    String changedData;
+                    Object temp = table.getValueAt(e.getFirstRow(), e.getColumn());
+                    if (temp == null || Objects.equals(temp.toString(), "")) {
+                        changedData = "''";
+                    } else {
+                        changedData = "'" + temp + "'";
+                    }
+                    String columnName = table.getColumnName(e.getColumn());
+                    Object id = table.getValueAt(e.getFirstRow(), 0);
+                    if (id != null) {
+                        sendSQL("UPDATE " + tableName + " SET " + columnName + " = " + changedData + " WHERE (id = " + id + ")");
+                    }
                 }
             }
         });
@@ -92,10 +92,8 @@ public class TableGUI extends JFrame {
             // 삭제 버튼 액션 처리
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
-                String sql = "DELETE from " + tableName + " where id = " + table.getValueAt(selectedRow, 0);
                 tableModel.removeRow(selectedRow);
-                System.out.println(sql);
-                pw.println(sql);
+                sendSQL("DELETE from " + tableName + " where id = " + table.getValueAt(selectedRow, 0));
             }
         });
 
@@ -112,18 +110,10 @@ public class TableGUI extends JFrame {
 
             // 추가 버튼 액션 처리
             Object[] object = new Object[tableModel.getColumnCount()];
-            int count = 1;
-            while (true) {
-                count++;
-                int row = tableModel.getRowCount() + count;
-                if (tableModel.getValueAt(row, 0) != null) {
-                    object[0] = count;
-                    break;
-                }
-            }
+            object[0] = (int) tableModel.getValueAt(tableModel.getRowCount() - 1, 0) + 1;
             tableModel.addRow(object);
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("INSERT into ").append(tableName).append(" values (").append(tableModel.getRowCount() + 1).append(", ");
+            stringBuilder.append("INSERT into ").append(tableName).append(" values (").append(object[0]).append(", ");
 
             for (int i = 1; i < table.getColumnCount(); i++) {
                 stringBuilder.append("Null");
@@ -132,10 +122,13 @@ public class TableGUI extends JFrame {
                 }
             }
             stringBuilder.append(")");
-            String sql = stringBuilder.toString();
-            System.out.println(sql);
-            pw.println(sql);
+            sendSQL(stringBuilder.toString());
         });
         return addButton;
+    }
+
+    private void sendSQL(String sql) {
+        System.out.println("[SEND] " + sql);
+        pw.println(sql);
     }
 }
