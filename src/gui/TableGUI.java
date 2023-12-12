@@ -28,7 +28,7 @@ public class TableGUI extends JFrame {
 
     public void setTable(SerializableResultSet rs) throws SQLException {
         tableModel = new DefaultTableModel();
-        setTitle("Table");
+        setTitle(tableName);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -129,7 +129,7 @@ public class TableGUI extends JFrame {
     }
 
     private void sendSQL(String sql) {
-        System.out.println("[SEND] " + sql);
+        System.out.println("[Send] " + sql);
         pw.println(sql);
     }
 }

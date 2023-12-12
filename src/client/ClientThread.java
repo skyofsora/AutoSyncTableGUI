@@ -41,7 +41,6 @@ public class ClientThread extends Thread {
                 }
                 System.out.println("'" + tableName + "' 테이블이 존재하지 않습니다.");
             }
-
             tableGUI = new TableGUI(pw, tableName);
             tableGUI.setTable(rs);
             queryToTable = new QueryToTable(tableGUI);
@@ -57,6 +56,4 @@ public class ClientThread extends Thread {
             System.exit(0);
         }
     }
-
-
 }
