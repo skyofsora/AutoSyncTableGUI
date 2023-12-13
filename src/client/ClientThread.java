@@ -39,8 +39,9 @@ public class ClientThread extends Thread {
                 if (rs != null) {
                     break;
                 }
-                System.out.println("'" + tableName + "' 테이블이 존재하지 않습니다.");
+                System.out.println("'" + tableName + "' Table Not Found");
             }
+            System.out.println("'"+tableName+"' Table Connected");
             tableGUI = new TableGUI(pw, tableName);
             tableGUI.setTable(rs);
             queryToTable = new QueryToTable(tableGUI);
@@ -52,7 +53,7 @@ public class ClientThread extends Thread {
             }
             System.exit(0);
         } catch (IOException | SQLException | ClassNotFoundException e) {
-            System.out.println("\u001B[31m[ERROR] " + e.getMessage()+"\u001B[0m");
+            System.out.println("\u001B[31m[Error] " + e.getMessage()+"\u001B[0m");
             System.exit(0);
         }
     }

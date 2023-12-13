@@ -44,7 +44,7 @@ public class ServerThread implements Runnable {
                 rs = new SerializableResultSet(conn.prepareStatement(read).executeQuery());
                 System.out.println(ip + "'" + tableName + "' Table Connected");
             } catch (SQLException | IOException e) {
-                System.out.println(ip + "'" + tableName + "' Table Not Found.");
+                System.out.println(ip + "'" + tableName + "' Table Not Found");
                 e.fillInStackTrace();
                 rs = null;
             }
@@ -52,7 +52,9 @@ public class ServerThread implements Runnable {
                 oos.writeObject(rs);
                 oos.flush();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                e.fillInStackTrace();
+                pw.println("\u001B[31m[Error] " + e.getMessage() + "\u001B[0m");
+                System.out.println("\u001B[31m" + ip + e.getMessage() + "\u001B[0m");
             }
         } while (rs == null);   // rs가 null이면 반복
         user = new User(pw, tableName);
@@ -68,9 +70,10 @@ public class ServerThread implements Runnable {
             }
         } catch (IOException | SQLException e) {
             e.fillInStackTrace();
-            pw.println("\u001B[31m[SERVER_ERROR] " + e.getMessage() + "\u001B[0m");
+            pw.println("\u001B[31m[Error] " + e.getMessage() + "\u001B[0m");
             System.out.println("\u001B[31m" + ip + e.getMessage() + "\u001B[0m");
         } finally {
+            list.remove(user);
             pw.close();
             try {
                 socket.close();

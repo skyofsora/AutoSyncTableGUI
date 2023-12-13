@@ -16,7 +16,8 @@ public class QueryToTable {
     }
 
     public void checkQuery(String query) {
-        if (query.indexOf("\u001B[31m[SERVER_ERROR]") == 0) {
+        if (query.indexOf("\u001B[31m[Error]") == 0) {
+            System.out.println(query);
             System.exit(0);
         } else {
             System.out.println("[Receive] " + query);
