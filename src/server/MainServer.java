@@ -1,5 +1,7 @@
 package server;
 
+import sql.SQLConnect;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -28,6 +30,8 @@ public class MainServer {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            SQLConnect.getInstance().closeConnection();
         }
     }
 

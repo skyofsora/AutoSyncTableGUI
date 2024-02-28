@@ -30,6 +30,7 @@ public class ServerThread implements Runnable {
             pw = new PrintWriter(socket.getOutputStream(), true);
             conn = SQLConnect.getInstance().getConnection("world", "root", "1234");
         } catch (Exception e) {
+            System.out.println(e.getMessage());
             e.fillInStackTrace();
         }
     }

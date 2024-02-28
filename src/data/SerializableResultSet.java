@@ -14,8 +14,6 @@ public class SerializableResultSet implements Serializable {
     private final List<String> columnNames;
     private final List<List<Object>> rows;
 
-    public String check = "도착함";
-
     public SerializableResultSet(ResultSet resultSet) throws SQLException {
         columnNames = new ArrayList<>();
         rows = new ArrayList<>();
